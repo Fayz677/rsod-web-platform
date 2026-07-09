@@ -1,7 +1,10 @@
 from contextlib import asynccontextmanager
 
 from app.api.auth import router as auth_router
+from app.api.health import router as health_router
 from app.config.settings import settings
+from app.core.exceptions import register_exception_handlers
+from app.middleware.request_logger import RequestLogMiddleware
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -48,8 +51,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.add_middleware(RequestLogMiddleware)
 # ── 注册路由 ─────────────────────────────────────────
 app.include_router(auth_router)
+app.include_router(health_router)
 
 
 @app.get("/")
@@ -86,3 +91,6 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+
+# ── 注册全局异常处理器 ─────────────────────────────────
+register_exception_handlers(app)

@@ -19,12 +19,17 @@ const request = axios.create({
 });
 
 // ── 请求拦截器 ──────────────────────────────────────
+// ── 请求拦截器 ──────────────────────────────────────
 request.interceptors.request.use(
   (config) => {
     // 从 Pinia store 获取 Token，自动注入请求头
     const userStore = useUserStore();
-    if (userStore.token) {
-      config.headers.Authorization = `Bearer ${userStore.token}`;
+
+    // ИЩЕМ ТОКЕН И В PINIA, И В LOCALSTORAGE
+    const token = userStore.token || localStorage.getItem("rsod_token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
